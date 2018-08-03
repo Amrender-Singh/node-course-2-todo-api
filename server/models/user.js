@@ -38,6 +38,10 @@ var userSchema = new mongoose.Schema({
         }
     ]
 });
+//statics allow us to add model methods
+userSchema.statics = {
+    findByToken
+};
 //Adding an instance method 
 userSchema.methods = {
     genrateAuthToken,
@@ -57,6 +61,20 @@ function toJSON(){
     var user = this;
     var userObject = user.toObject();
     return _.pick(userObject, ['_id', 'email']);
+}
+function findByToken(token){
+    var User = this; //here this is model
+    var decoded;
+    try {
+        decoded = jwt.verify(token, 'abc123');
+    } catch (error) {
+        return Promise.reject();
+    }
+    return User.findOne({
+        '_id' : decoded._id,
+        'tokens.token' : token,
+        'tokens.access' : 'auth'
+    })
 }
 
 var User = mongoose.model('User', userSchema);
