@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
-
+const bcrypt = require('bcryptjs');
 //schema is allows users to add on custom method
 
 var userSchema = new mongoose.Schema({
@@ -38,6 +38,9 @@ var userSchema = new mongoose.Schema({
         }
     ]
 });
+
+//mongoose middleware
+userSchema.pre('save', hashPassword);
 //statics allow us to add model methods
 userSchema.statics = {
     findByToken
@@ -55,6 +58,19 @@ function genrateAuthToken(){
     return user.save().then(()=>{
         return token;
     })
+}
+function hashPassword(next){
+    var user = this;
+    if(user.isModified('password')){
+        bcrypt.genSalt(10, (err, salt)=>{
+            bcrypt.hash(user.password, salt, (err, hash)=>{
+                user.password = hash;
+                next();
+            });
+        });
+    } else{
+        next();
+    }
 }
 //overided to json method so that mongoose return only email and _id in response.
 function toJSON(){
