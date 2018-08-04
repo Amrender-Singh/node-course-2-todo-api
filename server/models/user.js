@@ -49,7 +49,8 @@ userSchema.statics = {
 //Adding an instance method 
 userSchema.methods = {
     genrateAuthToken,
-    toJSON 
+    toJSON,
+    removeToken
 };
 function genrateAuthToken(){
     var user = this;
@@ -59,6 +60,15 @@ function genrateAuthToken(){
     return user.save().then(()=>{
         return token;
     })
+}
+function removeToken(token){
+    var user =  this;
+    //$pull in mongo db lets you remove an item from array that matches certain criteria
+   return user.update({
+        $pull : {
+            tokens : {token}
+        }
+    });
 }
 function hashPassword(next){
     var user = this;
