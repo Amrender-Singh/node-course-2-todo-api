@@ -8,9 +8,6 @@ var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
 var {authenticate} = require('./middleware/authenticate');
 
-
-//used by heroku
-const port = process.env.PORT || 3000;
 var app = express();
 //middleware
 app.use(bodyParser.json());
@@ -122,8 +119,8 @@ app.delete("/users/logout", authenticate, (req, res)=>{
         res.status(400).send();
     });
 });
-app.listen(port, ()=>{
-    console.log(`Started on port ${port}`);
+app.listen(process.env.PORT, ()=>{
+    console.log(`Started on port ${process.env.PORT}`);
 });
 
 //This is done for testing purpose

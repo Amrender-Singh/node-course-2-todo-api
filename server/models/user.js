@@ -55,7 +55,7 @@ userSchema.methods = {
 function genrateAuthToken(){
     var user = this;
     var access = 'auth';
-    var token = jwt.sign({_id : user._id.toHexString(), access}, 'abc123').toString();
+    var token = jwt.sign({_id : user._id.toHexString(), access}, process.env.JWT_SECRET).toString();
     user.tokens = user.tokens.concat([{access, token}]);
     return user.save().then(()=>{
         return token;
@@ -109,7 +109,7 @@ function findByToken(token){
     var User = this; //here this is model
     var decoded;
     try {
-        decoded = jwt.verify(token, 'abc123');
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (error) {
         return Promise.reject();
     }
