@@ -43,7 +43,8 @@ var userSchema = new mongoose.Schema({
 userSchema.pre('save', hashPassword);
 //statics allow us to add model methods
 userSchema.statics = {
-    findByToken
+    findByToken,
+    findByCredentials
 };
 //Adding an instance method 
 userSchema.methods = {
@@ -77,6 +78,22 @@ function toJSON(){
     var user = this;
     var userObject = user.toObject();
     return _.pick(userObject, ['_id', 'email']);
+}
+function findByCredentials(email, password){
+    var User = this;
+    return User.findOne({email}).then((user)=>{
+        if(!user){
+           return  Promise.reject();
+        }
+        return new Promise((resolve, reject)=>{
+           bcrypt.compare(password, user.password, (err, res)=>{
+                if(res){
+                    return resolve(user);
+                }
+                reject();
+            });
+        });
+    });
 }
 function findByToken(token){
     var User = this; //here this is model
